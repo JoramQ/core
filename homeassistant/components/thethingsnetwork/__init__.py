@@ -16,7 +16,7 @@ DOMAIN = "thethingsnetwork"
 TTN_ACCESS_KEY = "ttn_access_key"
 TTN_APP_ID = "ttn_app_id"
 TTN_DATA_STORAGE_URL = (
-    "https://{app_id}.data.thethingsnetwork.org/{endpoint}/{device_id}"
+    "https://{app_id}.data.thethingsnetwork.org/{endpoint}/{device_id}?last={last}"
 )
 
 CONFIG_SCHEMA = vol.Schema(

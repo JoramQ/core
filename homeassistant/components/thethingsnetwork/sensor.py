@@ -23,11 +23,13 @@ ATTR_TIME = "time"
 
 DEFAULT_TIMEOUT = 10
 CONF_DEVICE_ID = "device_id"
+CONF_LAST = "last"
 CONF_VALUES = "values"
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
         vol.Required(CONF_DEVICE_ID): cv.string,
+        vol.Optional(CONF_LAST, default='1h'): cv.string,
         vol.Required(CONF_VALUES): {cv.string: cv.string},
     }
 )
@@ -37,11 +39,12 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     """Set up The Things Network Data storage sensors."""
     ttn = hass.data.get(DATA_TTN)
     device_id = config.get(CONF_DEVICE_ID)
+    last = config.get(CONF_LAST)
     values = config.get(CONF_VALUES)
     app_id = ttn.get(TTN_APP_ID)
     access_key = ttn.get(TTN_ACCESS_KEY)
 
-    ttn_data_storage = TtnDataStorage(hass, app_id, device_id, access_key, values)
+    ttn_data_storage = TtnDataStorage(hass, app_id, device_id, last, access_key, values)
     success = await ttn_data_storage.async_update()
 
     if not success:
@@ -106,15 +109,16 @@ class TtnDataSensor(Entity):
 class TtnDataStorage:
     """Get the latest data from The Things Network Data Storage."""
 
-    def __init__(self, hass, app_id, device_id, access_key, values):
+    def __init__(self, hass, app_id, device_id, last, access_key, values):
         """Initialize the data object."""
         self.data = None
         self._hass = hass
         self._app_id = app_id
         self._device_id = device_id
+        self._last = last
         self._values = values
         self._url = TTN_DATA_STORAGE_URL.format(
-            app_id=app_id, endpoint="api/v2/query", device_id=device_id
+            app_id=app_id, endpoint="api/v2/query", device_id=device_id, last=last
         )
         self._headers = {ACCEPT: CONTENT_TYPE_JSON, AUTHORIZATION: f"key {access_key}"}
 
